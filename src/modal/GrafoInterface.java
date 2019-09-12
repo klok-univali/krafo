@@ -16,4 +16,5 @@ public interface GrafoInterface {
     public ArrayList<Vertice> extremidadesLigacao(String rotulo);
     public int[][] matrizAdjacencia();
     public int[][] matrizIncidencia();
+    public int[][] matrizPesos();
 }

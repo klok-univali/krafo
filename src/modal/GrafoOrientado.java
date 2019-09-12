@@ -133,6 +133,26 @@ public class GrafoOrientado extends Grafo implements GrafoInterface {
         return matriz;
     }
     
+    @Override
+    public int[][] matrizPesos(){
+        int size = this.vertices.size();
+        int[][] matriz = new int[size][size];
+        
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                matriz[i][j] = 0;
+            }
+        }
+        
+        for (int i = 0; i < size; i++) {
+            for (int j = 1; j < this.vertices.get(i).size(); j++) {
+                matriz[i][ indiceVertice(this.vertices.get(i).get(j).obterRotulo()) ] = buscaArco(this.vertices.get(i).get(0), this.vertices.get(i).get(j)).obterValor() ;
+            }
+        }
+        
+        return matriz;
+    }
+    
     private boolean existeArco(String rotulo){
         for (Arco arco : this.arcos) {
             if ( arco.obterRotulo().equalsIgnoreCase(rotulo) ) {
@@ -145,6 +165,15 @@ public class GrafoOrientado extends Grafo implements GrafoInterface {
     private Arco buscaArco(String rotulo){
         for (Arco arco : this.arcos) {
             if ( arco.obterRotulo().equalsIgnoreCase(rotulo) ) {
+                return arco;
+            }
+        }
+        return null;
+    }
+    
+    private Arco buscaArco(Vertice v1, Vertice v2){
+        for (Arco arco : this.arcos) {
+            if ( arco.obterOrigem().obterRotulo().equalsIgnoreCase(v1.obterRotulo()) && arco.obterDestino().obterRotulo().equalsIgnoreCase(v2.obterRotulo()) ) {
                 return arco;
             }
         }

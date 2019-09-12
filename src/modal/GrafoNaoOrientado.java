@@ -145,6 +145,26 @@ public class GrafoNaoOrientado extends Grafo implements GrafoInterface{
         return matriz;
     }
     
+    @Override
+    public int[][] matrizPesos(){
+        int size = this.vertices.size();
+        int[][] matriz = new int[size][size];
+        
+        for (int i = 0; i < size; i++) {
+            for (int j = 0; j < size; j++) {
+                matriz[i][j] = 0;
+            }
+        }
+        
+        for (int i = 0; i < size; i++) {
+            for (int j = 1; j < this.vertices.get(i).size(); j++) {
+                matriz[i][ indiceVertice(this.vertices.get(i).get(j).obterRotulo()) ] = buscaAresta(this.vertices.get(i).get(0), this.vertices.get(i).get(j)).obterValor() ;
+            }
+        }
+        
+        return matriz;
+    }
+    
     private boolean existeAresta(String rotulo) {
         for (Aresta aresta : this.arestas) {
             if ( aresta.obterRotulo().equalsIgnoreCase(rotulo) ) {
@@ -157,6 +177,18 @@ public class GrafoNaoOrientado extends Grafo implements GrafoInterface{
     private Aresta buscaAresta(String rotulo) {
         for (Aresta aresta : this.arestas) {
             if ( aresta.obterRotulo().equalsIgnoreCase(rotulo) ) {
+                return aresta;
+            }
+        }
+        return null;
+    }
+    
+    private Aresta buscaAresta(Vertice v1, Vertice v2) {
+        ArrayList<Vertice> vs;
+        for (Aresta aresta : this.arestas) {
+            vs = aresta.obterExtremidades();
+            if ( (vs.get(0).obterRotulo().equalsIgnoreCase(v1.obterRotulo()) && vs.get(1).obterRotulo().equalsIgnoreCase(v2.obterRotulo())) ||
+                   (vs.get(0).obterRotulo().equalsIgnoreCase(v2.obterRotulo()) && vs.get(1).obterRotulo().equalsIgnoreCase(v1.obterRotulo())) ) {
                 return aresta;
             }
         }
