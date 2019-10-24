@@ -5,8 +5,10 @@
  */
 package krafo;
 
+import java.util.ArrayList;
 import modal.GrafoNaoOrientado;
 import modal.GrafoOrientado;
+import modal.Vertice;
 
 /**
  *
@@ -17,26 +19,36 @@ public class Krafo {
     /**
      * @param args the command line arguments
      */
+    
+    static GrafoOrientado g;
+//    static GrafoNaoOrientado g;
+    
     public static void main(String[] args) {
         
-        GrafoOrientado g = new GrafoOrientado();
-//        GrafoNaoOrientado g = new GrafoNaoOrientado();
+        g = new GrafoOrientado();
+//      g = new GrafoNaoOrientado();
         
         g.novoVertice("v1");
         g.novoVertice("v2");
         g.novoVertice("v3");
+        g.novoVertice("v4");
         
         g.novaLigacao("a", 1, g.obterVertice("v1"), g.obterVertice("v2"));
         g.novaLigacao("b", 3, g.obterVertice("v1"), g.obterVertice("v3"));
         g.novaLigacao("c", 6, g.obterVertice("v2"), g.obterVertice("v3"));
         g.novaLigacao("d", 2, g.obterVertice("v3"), g.obterVertice("v1"));
         g.novaLigacao("e", 1, g.obterVertice("v3"), g.obterVertice("v2"));
-        
+                
         imprimeMatrizAdjacencia(g.matrizAdjacencia());
         imprimeMatrizIncidencia(g.matrizIncidencia());
         imprimeMatrizPesos(g.matrizPesos());
         
-        g.removerLigacao("c");
+        imprimiAdjacente("v1", "v4");
+        imprimiValor("c");
+        imprimeExtremidade("c");
+        
+//        g.removerLigacao("c");
+        g.removerVertice("v1");
         
         imprimeMatrizAdjacencia(g.matrizAdjacencia());
         imprimeMatrizIncidencia(g.matrizIncidencia());
@@ -81,4 +93,20 @@ public class Krafo {
         }
     }
     
+    private static void imprimiAdjacente(String v1, String v2) {
+        if ( g.verificaAdjacenciaVertices(v1, v2) ) {
+            System.out.println("Os vertices " + v1 + " e " + v2 + " são adjacentes.");
+        } else {
+            System.out.println("Os vertices " + v1 + " e " + v2 + " não são adjacentes.");
+        }
+    }
+    
+    private static void imprimiValor(String a){
+        System.out.println("O valor da ligação " + a + " é " + g.valorLigacao(a));
+    }
+    
+    private static void imprimeExtremidade(String a) {
+        ArrayList<Vertice> e = g.extremidadesLigacao(a);
+        System.out.println("As extremidades da ligação " + a + " são: " + e.get(0).obterRotulo() + " e " + e.get(1).obterRotulo());
+    }
 }

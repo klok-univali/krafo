@@ -39,13 +39,13 @@ public class GrafoOrientado extends Grafo implements GrafoInterface {
     @Override
     public void removerVertice(String rotulo) {
         if ( exiteVertice(rotulo) ) {  
-            ArrayList<Arco> as = this.arcos;
-            for (Arco arco : as) {
-                if ( arco.obterOrigem().obterRotulo().equalsIgnoreCase(rotulo) || arco.obterDestino().obterRotulo().equalsIgnoreCase(rotulo) ) {
-                    this.arcos.remove(arco);
-                }
-            }
+            this.arcos.removeIf(n -> ( n.obterOrigem().obterRotulo().equalsIgnoreCase(rotulo) || n.obterDestino().obterRotulo().equalsIgnoreCase(rotulo) ));
             this.vertices.remove(indiceVertice(rotulo));
+            for (int i = 0; i < this.vertices.size(); i++) {
+                ArrayList<Vertice> vTmp = this.vertices.get(i);
+                vTmp.removeIf(n -> n.obterRotulo().equalsIgnoreCase(rotulo));
+                this.vertices.set(i, vTmp);
+            }
         }
     }
 

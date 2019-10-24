@@ -6,6 +6,8 @@ package modal;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class GrafoNaoOrientado extends Grafo implements GrafoInterface{
     private ArrayList<Aresta> arestas;
@@ -165,6 +167,37 @@ public class GrafoNaoOrientado extends Grafo implements GrafoInterface{
         return matriz;
     }
     
+    
+    public void buscaEmLargura( Vertice v ){
+        LinkedList<Vertice> fila = new LinkedList<>();
+        ArrayList<Vertice> marcados = new ArrayList<>();
+        ArrayList<Vertice> ts;
+        
+        marcados.add(v);
+        fila.add(v);
+        
+        while ( ! fila.isEmpty() ) {
+            
+            v = fila.poll();
+            
+            ts = buscaAdjacentes(v);
+            
+            for (Vertice t : ts) {
+                
+                if ( ! marcados.contains(t) ) {
+                    
+                } else {
+                    
+                }
+                
+            }
+            
+            
+            
+        }
+    }
+    
+    
     private boolean existeAresta(String rotulo) {
         for (Aresta aresta : this.arestas) {
             if ( aresta.obterRotulo().equalsIgnoreCase(rotulo) ) {
@@ -193,6 +226,32 @@ public class GrafoNaoOrientado extends Grafo implements GrafoInterface{
             }
         }
         return null;
+    }
+    
+    private ArrayList<Vertice> buscaArestas(Vertice v) {
+        ArrayList<Vertice> adjacentes = new ArrayList<>();
+        ArrayList<Vertice> vs;
+        for (Aresta aresta : this.arestas) {
+            vs = aresta.obterExtremidades();
+            if ( vs.get(0).obterRotulo().equalsIgnoreCase(v.obterRotulo()) ) {
+                adjacentes.add(vs.get(0));
+                continue;
+            }
+            if ( vs.get(1).obterRotulo().equalsIgnoreCase(v.obterRotulo()) ) {
+                adjacentes.add(vs.get(1));
+            }
+        }
+        return adjacentes;
+    }
+    
+    private ArrayList<Vertice> buscaAdjacentes(Vertice v) {
+        ArrayList<Vertice> vs = new ArrayList<>();
+        for (ArrayList<Vertice> vertice : this.vertices) {
+            if ( vertice.get(0).obterRotulo().equalsIgnoreCase(v.obterRotulo()) ) {
+                return vertice;
+            }
+        }
+        return vs;
     }
     
     private int incidencia(Vertice v, Aresta a) {
