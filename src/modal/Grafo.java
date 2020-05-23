@@ -13,8 +13,8 @@ public class Grafo {
         this.vertices = new ArrayList<>();
     }
     
-    public boolean exiteVertice(String rotulo){
-        for (ArrayList<Vertice> vertice : vertices) {
+    public boolean existeVertice(String rotulo){
+        for (ArrayList<Vertice> vertice : this.vertices) {
             if ( vertice.get(0).obterRotulo().equalsIgnoreCase(rotulo) ) {
                 return true;
             }
@@ -23,7 +23,7 @@ public class Grafo {
     }
     
     public Vertice obterVertice(String rotulo){
-        if ( exiteVertice(rotulo) ) {
+        if ( existeVertice(rotulo) ) {
             return this.vertices.get( indiceVertice(rotulo) ).get(0);
         }
         return null;

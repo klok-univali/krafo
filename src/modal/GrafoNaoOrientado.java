@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Stack;
 
 public class GrafoNaoOrientado extends Grafo implements GrafoInterface{
     private ArrayList<Aresta> arestas;
@@ -19,7 +20,7 @@ public class GrafoNaoOrientado extends Grafo implements GrafoInterface{
 
     @Override
     public void novoVertice(String rotulo) {
-        if ( ! exiteVertice(rotulo) ) {
+        if ( ! existeVertice(rotulo) ) {
             Vertice v = new Vertice(rotulo);
             ArrayList<Vertice> vs = new ArrayList<>();
             vs.add(v);
@@ -46,17 +47,17 @@ public class GrafoNaoOrientado extends Grafo implements GrafoInterface{
     }
 
     @Override
-    public void removerVertice(String rotulo) {
-        if ( exiteVertice(rotulo) ) {
-            ArrayList<Aresta> as = this.arestas;
-            ArrayList<Vertice> vs = null;
-            for (Aresta aresta : as) {
-                vs = aresta.obterExtremidades();
-                if ( vs.get(0).obterRotulo().equalsIgnoreCase(rotulo) || vs.get(1).obterRotulo().equalsIgnoreCase(rotulo) ) {
-                    this.arestas.remove(aresta);
-                }
-            }
+    public void removerVertice(String rotulo) {   
+        if ( existeVertice(rotulo) ) {
+            ArrayList<Vertice> vTmp = new ArrayList<>();
+            
+            this.arestas.removeIf( n -> (n.obterExtremidades().get(0).obterRotulo().equalsIgnoreCase(rotulo) || n.obterExtremidades().get(1).obterRotulo().equalsIgnoreCase(rotulo) ) );
             this.vertices.remove(indiceVertice(rotulo));
+            for (int i = 0; i < this.vertices.size(); i++) {
+                vTmp = this.vertices.get(i);
+                vTmp.removeIf(n -> n.obterRotulo().equalsIgnoreCase(rotulo));
+                this.vertices.set(i, vTmp);
+            }
         }
     }
 
@@ -80,7 +81,7 @@ public class GrafoNaoOrientado extends Grafo implements GrafoInterface{
 
     @Override
     public boolean verificaAdjacenciaVertices(String v1, String v2) {
-        if ( exiteVertice(v1) && existeAresta(v2) ) {
+        if ( existeVertice(v1) && existeAresta(v2) ) {
             for (Aresta aresta : this.arestas) {
                 if ( aresta.obterExtremidades().get(0).obterRotulo().equalsIgnoreCase(v1) && aresta.obterExtremidades().get(1).obterRotulo().equalsIgnoreCase(v2) ) {
                     return true;
@@ -168,33 +169,60 @@ public class GrafoNaoOrientado extends Grafo implements GrafoInterface{
     }
     
     
-    public void buscaEmLargura( Vertice v ){
+    public ArrayList<Aresta> buscaEmLargura( Vertice v ){
         LinkedList<Vertice> fila = new LinkedList<>();
         ArrayList<Vertice> marcados = new ArrayList<>();
+        ArrayList<Aresta> arvore = new ArrayList<>();
         ArrayList<Vertice> ts;
         
         marcados.add(v);
         fila.add(v);
         
         while ( ! fila.isEmpty() ) {
-            
             v = fila.poll();
-            
             ts = buscaAdjacentes(v);
             
             for (Vertice t : ts) {
-                
                 if ( ! marcados.contains(t) ) {
-                    
+                    arvore.add( buscaAresta(v, t) );
+                    fila.add(t);
+                    marcados.add(t);
                 } else {
-                    
+                    if ( arvore.contains( buscaAresta(v, t) ) ){
+                        arvore.add( buscaAresta(v, t) );
+                    }
                 }
-                
             }
-            
-            
-            
         }
+        
+        return arvore;
+    }
+    
+    
+    public ArrayList<Aresta> buscaEmProfundidade(Vertice v){
+        Stack pilha = new Stack();
+        ArrayList<Vertice> marcados = new ArrayList<>();
+        ArrayList<Aresta> arvore = new ArrayList<>();
+        ArrayList<Vertice> ts;
+        
+        marcados.add(v);
+        
+        while ( ! pilha.empty() ){
+            ts = buscaAdjacentes(v);
+            pilha.push(ts.get(1));
+                       
+            if ( ! marcados.contains(ts.get(1)) ){
+                arvore.add( buscaAresta(v, ts.get(1)) );
+                marcados.add(ts.get(1));
+                buscaEmProfundidade(ts.get(1));
+            } else {
+                if (! arvore.contains(buscaAresta(v, ts.get(0)))){
+                    arvore.add(buscaAresta(v, ts.get(0)));
+                }
+            }
+        }
+        
+        return arvore;
     }
     
     
@@ -261,4 +289,67 @@ public class GrafoNaoOrientado extends Grafo implements GrafoInterface{
         }
         return 0;
     }
+    
+    private ArrayList<Vertice> obterVertices(){
+        ArrayList<Vertice> verticesTmp = new ArrayList<>();
+        
+        for (ArrayList<Vertice> vertice : this.vertices) {
+            verticesTmp.add(vertice.get(0));
+        }
+        
+        return verticesTmp;
+    }
+    
+    private boolean pertence(Vertice v, ArrayList<Vertice> listaVertices){
+        for (Vertice vertice : listaVertices) {
+            if ( v.obterRotulo().equals(vertice.obterRotulo()) ) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public ArrayList<Aresta> PRIM(Vertice vInicial){
+        ArrayList<Vertice> visitados = new ArrayList<>();
+        ArrayList<Vertice> naoVisitados = obterVertices();
+        ArrayList<Vertice> extremidadesAresta = null;
+        ArrayList<Aresta> arvoreMinima = new ArrayList<>();
+        Aresta arestaMinima = null;
+        int pesoMinimo;
+        
+        visitados.add(naoVisitados.get(0));
+        naoVisitados.remove(0);
+        
+        while (! naoVisitados.isEmpty()){
+            pesoMinimo = 999999;
+            
+            for (Aresta aresta : this.arestas) {                
+                extremidadesAresta = aresta.obterExtremidades();
+
+                if ( ((pertence(extremidadesAresta.get(0), visitados) && pertence(extremidadesAresta.get(1), naoVisitados)) ||
+                        (pertence(extremidadesAresta.get(1), visitados) && pertence(extremidadesAresta.get(0), naoVisitados)) ) && 
+                        pesoMinimo > aresta.obterValor() ) {
+                    pesoMinimo = aresta.obterValor();
+                    arestaMinima = aresta;
+                }
+            }
+            
+            extremidadesAresta = arestaMinima.obterExtremidades();
+            
+            if ( ! pertence(extremidadesAresta.get(0), visitados) ) {
+                visitados.add( extremidadesAresta.get(0) );
+                naoVisitados.remove( extremidadesAresta.get(0) );
+            }
+            
+            if ( ! pertence(extremidadesAresta.get(1), visitados) ) {
+                visitados.add( extremidadesAresta.get(1) );
+                naoVisitados.remove( extremidadesAresta.get(1) );
+            }
+            
+            arvoreMinima.add(arestaMinima);
+        }
+        
+        return arvoreMinima;
+    }
+    
 }

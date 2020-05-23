@@ -5,6 +5,7 @@
 package modal;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 public class GrafoOrientado extends Grafo implements GrafoInterface {
     private ArrayList<Arco> arcos;
@@ -16,7 +17,7 @@ public class GrafoOrientado extends Grafo implements GrafoInterface {
 
     @Override
     public void novoVertice(String rotulo) {
-        if ( ! exiteVertice(rotulo) ) {
+        if ( ! existeVertice(rotulo) ) {
             Vertice v = new Vertice(rotulo);
             ArrayList<Vertice> vs = new ArrayList<>();
             vs.add(v);
@@ -38,7 +39,7 @@ public class GrafoOrientado extends Grafo implements GrafoInterface {
 
     @Override
     public void removerVertice(String rotulo) {
-        if ( exiteVertice(rotulo) ) {  
+        if ( existeVertice(rotulo) ) {  
             this.arcos.removeIf(n -> ( n.obterOrigem().obterRotulo().equalsIgnoreCase(rotulo) || n.obterDestino().obterRotulo().equalsIgnoreCase(rotulo) ));
             this.vertices.remove(indiceVertice(rotulo));
             for (int i = 0; i < this.vertices.size(); i++) {
@@ -63,7 +64,7 @@ public class GrafoOrientado extends Grafo implements GrafoInterface {
 
     @Override
     public boolean verificaAdjacenciaVertices(String v1, String v2) {
-        if ( exiteVertice(v1) && exiteVertice(v2) ) {
+        if ( existeVertice(v1) && existeVertice(v2) ) {
             for (Arco arco : this.arcos) {
                 if ( arco.obterOrigem().obterRotulo().equalsIgnoreCase(v1) && arco.obterDestino().obterRotulo().equalsIgnoreCase(v2) ) {
                     return true;
@@ -151,6 +152,45 @@ public class GrafoOrientado extends Grafo implements GrafoInterface {
         }
         
         return matriz;
+    }
+    
+    public ArrayList<Arco> buscaEmLargura( Vertice v ){
+        LinkedList<Vertice> fila = new LinkedList<>();
+        ArrayList<Vertice> marcados = new ArrayList<>();
+        ArrayList<Arco> arvore = new ArrayList<>();
+        ArrayList<Vertice> ts;
+        
+        marcados.add(v);
+        fila.add(v);
+        
+        while ( ! fila.isEmpty() ) {
+            v = fila.poll();
+            ts = buscaAdjacentes(v);
+            
+            for (Vertice t : ts) {
+                if ( ! marcados.contains(t) ) {
+                    arvore.add( buscaArco(v, t) );
+                    fila.add(t);
+                    marcados.add(t);
+                } else {
+                    if ( arvore.contains( buscaArco(v, t) ) ){
+                        arvore.add( buscaArco(v, t) );
+                    }
+                }
+            }
+        }
+        
+        return arvore;
+    }
+        
+    private ArrayList<Vertice> buscaAdjacentes(Vertice v) {
+        ArrayList<Vertice> vs = new ArrayList<>();
+        for (ArrayList<Vertice> vertice : this.vertices) {
+            if ( vertice.get(0).obterRotulo().equalsIgnoreCase(v.obterRotulo()) ) {
+                return vertice;
+            }
+        }
+        return vs;
     }
     
     private boolean existeArco(String rotulo){
